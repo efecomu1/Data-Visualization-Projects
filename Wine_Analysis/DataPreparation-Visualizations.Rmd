@@ -1,0 +1,128 @@
+---
+title: "DataViz-RVisualizationProject"
+author: "Efe Comu"
+date: "2024-10-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+library(readr)
+
+# Load the datasets
+red_wine <- read_csv("wine-quality Red.csv")
+white_wine <- read_csv("wine-quality White.csv")
+```
+Basic Cleaning and Preparation
+```{r}
+# Check for missing values
+sum(is.na(red_wine))
+sum(is.na(white_wine))
+
+# Renaming of columns for consistency (I don't think it's necessary but just to be safe)
+colnames(red_wine) <- make.names(colnames(red_wine))
+colnames(white_wine) <- make.names(colnames(white_wine))
+
+# Filter out rows from white wine dataset where quality is 9
+# This is because there are only very few rows with quality of 9, and there are no observations with quality of 9 in the red wine dataset
+white_wine_filtered <- white_wine %>% filter(quality != 9)
+
+# Randomly select 1,500 rows from each dataset
+# This is because there are around 3 times more observations for white wine, which might lead to misconceptions when visualized based on count
+set.seed(42)
+red_wine_sample <- red_wine %>% sample_n(1500)
+white_wine_sample <- white_wine_filtered %>% sample_n(1500)
+
+# Verify the sampling and filtering
+table(red_wine_sample$quality)
+table(white_wine_sample$quality)
+
+# Add a column to differentiate between red and white wine
+red_wine_sample <- red_wine_sample %>% mutate(wine_type = "Red")
+white_wine_sample <- white_wine_sample %>% mutate(wine_type = "White")
+
+# Combine the datasets
+wine_data_combined <- bind_rows(red_wine_sample, white_wine_sample)
+
+# Convert wine_type to a factor
+wine_data_combined$wine_type <- as.factor(wine_data_combined$wine_type)
+
+# Remove the 'type' column since it's redundant
+# wine_data_combined <- wine_data_combined %>% select(-type)
+
+
+summary(wine_data_combined)
+head(wine_data_combined)
+tail(wine_data_combined)
+```
+
+Visualization 1: Quality Distribution by Wine Type
+ To show how wine quality is distributed across red and white wines
+```{r}
+ggplot(wine_data_combined, aes(x = quality, fill = wine_type)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Count of Wine Quality Ratings by Wine Type", x = "Quality Rating", y = "Count") +
+  theme_minimal() +
+  scale_fill_manual(values = c("Red" = "red", "White" = "lightblue"), name = "wine_type") +
+  # To make sure that all quality values (3 to 8) are displayed
+  scale_x_continuous(breaks = seq(3, 8, 1))  
+
+```
+
+Visualization 2: Correlation Heatmap
+
+```{r}
+# Red wine correlation heatmap
+red_wine_corr <- wine_data_combined %>% 
+  filter(wine_type == "Red") %>%
+  select(-wine_type) %>%
+  cor()
+
+ggplot(data = as.data.frame(as.table(red_wine_corr)), aes(Var1, Var2, fill = Freq)) + 
+  geom_tile() +
+  scale_fill_gradient2(low = "red", high = "green", mid = "white", midpoint = 0) +
+  labs(title = "Correlation Heatmap for Red Wines", x = "", y = "") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# White wine correlation heatmap
+white_wine_corr <- wine_data_combined %>% 
+  filter(wine_type == "White") %>%
+  select(-wine_type) %>%
+  cor()
+
+ggplot(data = as.data.frame(as.table(white_wine_corr)), aes(Var1, Var2, fill = Freq)) + 
+  geom_tile() +
+  scale_fill_gradient2(low = "red", high = "green", mid = "white", midpoint = 0) +
+  labs(title = "Correlation Heatmap for White Wines", x = "", y = "") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+Visualization 3: Density Plot of Alcohol Content (Red vs. White)
+
+```{r}
+ggplot(wine_data_combined, aes(x = alcohol, fill = wine_type)) +
+  geom_density(alpha = 0.6) +
+  labs(title = "Density Plot of Alcohol Content by Wine Type", x = "Alcohol Content", y = "Density") +
+  scale_fill_manual(values = c("Red" = "red", "White" = "lightblue")) +
+  theme_minimal()
+```
+
+Visualization 4: Boxplot of pH Level by Wine Type and Quality
+
+```{r}
+ggplot(wine_data_combined, aes(x = factor(quality), y = pH, fill = wine_type)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of pH Levels by Wine Quality and Type", x = "Wine Quality", y = "pH Level") +
+  scale_fill_manual(values = c("Red" = "red", "White" = "lightblue")) +
+  theme_minimal()
+```
