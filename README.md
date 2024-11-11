@@ -7,11 +7,14 @@ This repository showcases data visualization projects focused on diverse analyti
 # Wine Quality Analysis Visualization:
 
 Objective: Analyze the relationship between various chemical properties and quality ratings for red and white wines.
+
 Data Source: Kaggle dataset on wine quality by M abdullah, 2024.
+
 Key Insights:
 White wines generally receive higher quality ratings, potentially due to higher alcohol content and better pH and sulfur level control.
 Alcohol shows a strong positive correlation with quality, more so for red wines, while volatile acidity negatively impacts red wine quality.
 pH level has contrasting relationships with quality in red vs. white wines.
+
 Visualizations:
 Distribution of wine quality ratings, correlation heatmaps, and density plots for alcohol content and pH levels, highlighting factors impacting wine quality.
 
