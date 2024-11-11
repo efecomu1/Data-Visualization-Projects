@@ -18,5 +18,7 @@ Distribution of wine quality ratings, correlation heatmaps, and density plots fo
 # Electricity Usage Trends Visualization:
 
 Objective: Recreate and improve a publicly available graph on global electricity trends.
+
 Original Source: New York Times article titled “How Electricity Is Changing, Country by Country” by Nadja Popovich (Nov. 20, 2023).
+
 Approach: Recreated visualization provides insights into electricity usage patterns across United States, with a focus on improved design elements for clarity and interpretation.
